@@ -1,0 +1,110 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Unlisted (link-only) access gate, share link UI, and Chrome extension wrapper",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Gate the entire watermark-removal UI behind a required access secret in the URL hash, persisted for the session and removed from the visible URL.",
+      "acceptanceCriteria": [
+        "When visiting the deployed app URL without the required secret in the URL hash, the user only sees a lock/blocked page and cannot access upload/processing UI.",
+        "When visiting the deployed app URL with the required secret in the URL hash, the normal app workflow UI is accessible.",
+        "The secret is read from the URL hash (not query string), persisted to sessionStorage for the session, and cleared from the visible URL after extraction (using the existing urlParams utilities)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useUnlistedAccess.ts",
+          "operation": "create",
+          "description": "Add a dedicated hook to retrieve the access secret from the URL hash via the existing urlParams utilities, persist it to sessionStorage, validate it against a frontend-configured expected value, and expose unlocked/locked state plus a user-readable locked reason."
+        },
+        {
+          "path": "frontend/src/components/LockedScreen.tsx",
+          "operation": "create",
+          "description": "Create a locked/blocked screen component shown when the app is accessed without a valid secret; use shadcn-ui building blocks (e.g., Card/Alert/Button) for consistent styling. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wrap the existing workflow UI with the unlisted access gate: if locked, render LockedScreen instead of the upload/mark/process/download workflow; if unlocked, render the current app as-is."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Ensure all backend calls used by the workflow supply the persisted access secret on every call (aligned with the typed backend interface), and standardize an English error message when access is blocked (e.g., \"This app is private. Please use a valid access link.\")."
+        },
+        {
+          "path": "frontend/src/hooks/useChunkedVideoUpload.ts",
+          "operation": "modify",
+          "description": "Propagate access-blocked errors from upload initialization into the existing upload error UI so users see a clear, actionable message when the app is private."
+        },
+        {
+          "path": "frontend/.env.example",
+          "operation": "create",
+          "description": "Document the expected frontend environment variable used to validate the unlisted access secret (build-time configuration) and how it relates to the required hash secret format."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a \"Share access link\" UI that copies an unlisted URL containing the current session’s access secret in the hash fragment.",
+      "acceptanceCriteria": [
+        "The UI provides a way to copy the current app URL with the access secret in the hash fragment (not query params).",
+        "If the app is currently unlocked (secret present in session), the share UI uses that same secret.",
+        "The share UI does not display or copy an empty/invalid link; it should instruct the user to open a valid access link if the secret is not available."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ShareAccessLink.tsx",
+          "operation": "create",
+          "description": "Implement a compact share panel that builds a copyable URL with the access secret in the hash fragment; use shadcn-ui components (e.g., Input/Button/Alert) and the existing sonner Toaster for copy success feedback. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/WorkflowHeader.tsx",
+          "operation": "modify",
+          "description": "Wire ShareAccessLink into an existing always-visible area of the UI (header) so the owner can copy the unlisted access URL without adding new routes/pages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add a minimal Chrome Extension (Manifest V3) package that opens the deployed unlisted web app URL.",
+      "acceptanceCriteria": [
+        "A new extension folder is added (e.g., under frontend/extension/ or similar) containing at minimum: manifest.json, icons, and a simple action that opens the web app URL in a new tab (or an embedded popup pointing to the URL, if allowed).",
+        "The extension’s target URL includes the unlisted hash secret format required to unlock the site (or documentation explains where to set it before publishing).",
+        "A short English README is included with step-by-step instructions to: load unpacked in Chrome for testing, zip the extension folder, and publish via the Chrome Web Store developer dashboard."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/extension/manifest.json",
+          "operation": "create",
+          "description": "Create a Manifest V3 definition with an action and required permissions to open a fixed target URL; include a clearly marked placeholder for the deployed app URL and its required hash-secret format."
+        },
+        {
+          "path": "frontend/extension/background.js",
+          "operation": "create",
+          "description": "Add a minimal service worker script that opens the configured unlisted web app URL in a new tab when the extension action is clicked."
+        },
+        {
+          "path": "frontend/extension/icons/icon-16.png",
+          "operation": "create",
+          "description": "Add extension icon asset (16x16). If reusing existing branding, base it on frontend/public/assets/generated/watermark-erased-logo.dim_512x512.png."
+        },
+        {
+          "path": "frontend/extension/icons/icon-48.png",
+          "operation": "create",
+          "description": "Add extension icon asset (48x48). If reusing existing branding, base it on frontend/public/assets/generated/watermark-erased-logo.dim_512x512.png."
+        },
+        {
+          "path": "frontend/extension/icons/icon-128.png",
+          "operation": "create",
+          "description": "Add extension icon asset (128x128). If reusing existing branding, base it on frontend/public/assets/generated/watermark-erased-logo.dim_512x512.png."
+        },
+        {
+          "path": "frontend/extension/README.md",
+          "operation": "create",
+          "description": "Write short step-by-step English instructions to load unpacked for testing, configure/set the target URL + hash secret format, zip the extension folder, and publish later via the Chrome Web Store developer dashboard."
+        }
+      ]
+    }
+  ]
+}

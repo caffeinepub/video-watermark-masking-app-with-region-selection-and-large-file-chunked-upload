@@ -1,2 +1,3 @@
-# video-watermark-masking-app-with-region-selection-and-large-file-chunked-upload
-Exported from Caffeine project: Add unlisted (link-only) access mode and Chrome extension wrapper package
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

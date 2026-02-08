@@ -1,0 +1,93 @@
+{
+  "kind": "build_request",
+  "title": "Add unlisted (link-only) access mode and Chrome extension wrapper package",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Implement an \"unlisted / link-only\" access gate so the web app UI is not visible/usable unless the user opens the app with a valid secret in the URL hash (e.g. #accessKey=...). If the secret is missing or invalid, show a locked screen instead of the watermark-removal workflow.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Giv me website link so that anyone with link can use and without link no one can even see it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When visiting the deployed app URL without the required secret in the URL hash, the user only sees a lock/blocked page and cannot access upload/processing UI.",
+        "When visiting the deployed app URL with the required secret in the URL hash, the normal app workflow UI is accessible.",
+        "The secret is read from the URL hash (not query string), persisted to sessionStorage for the session, and cleared from the visible URL after extraction (using the existing urlParams utilities)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Enforce the same unlisted access gate on backend APIs so that canister methods used by the app cannot be successfully called unless the request includes the valid access secret (do not rely on frontend-only hiding).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "without link no one can even see it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend methods used by the UI for upload/metadata/status (e.g., uploadVideo, markWatermark, updateVideoStatus, deleteVideo, getVideo, getAllVideosByOwner, and blob upload/download methods exposed by the storage mixin that are reachable from the frontend) reject requests when the required access secret is missing/invalid.",
+        "Backend methods accept the secret as an explicit parameter (since it is not otherwise available to the canister), and the frontend supplies it on every call.",
+        "A clear, user-readable English error is surfaced in the UI when access is blocked (e.g., \"This app is private. Please use a valid access link.\")."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a small frontend \"Share access link\" UI that shows a copyable unlisted URL containing the required hash secret so the owner can distribute the link to others.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "anyone with link can use"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The UI provides a way to copy the current app URL with the access secret in the hash fragment (not query params).",
+        "If the app is currently unlocked (secret present in session), the share UI uses that same secret.",
+        "The share UI does not display or copy an empty/invalid link; it should instruct the user to open a valid access link if the secret is not available."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Create a minimal Chrome Extension (Manifest V3) package in the repo that opens the deployed unlisted web app URL, so the extension can be zipped and published later to the Chrome Web Store.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "And also give me extension also if i'd like to publish it in future"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new extension folder is added (e.g., under frontend/extension/ or similar) containing at minimum: manifest.json, icons, and a simple action that opens the web app URL in a new tab (or an embedded popup pointing to the URL, if allowed).",
+        "The extension’s target URL includes the unlisted hash secret format required to unlock the site (or documentation explains where to set it before publishing).",
+        "A short English README is included with step-by-step instructions to: load unpacked in Chrome for testing, zip the extension folder, and publish via the Chrome Web Store developer dashboard."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or anything in frontend/src/components/ui (these paths are immutable).",
+    "Keep all backend logic in the single Motoko actor in backend/main.mo; add backend/migration.mo only if a stable-state schema change is required.",
+    "Do not add third-party authentication beyond Internet Identity (Internet Identity may remain optional, but the link-only gate must still be enforced)."
+  ],
+  "nonGoals": [
+    "Providing the actual final deployed production URL inside this build request (deployment will output the URL separately).",
+    "Implementing a full membership system, invite management UI, or per-user access lists.",
+    "Packaging and submitting the extension to the Chrome Web Store on the user’s behalf (only generate the files and instructions)."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Build and deploy a video watermark remover web app with unlisted/private access via shareable link, plus an optional Chrome extension package for future publishing.",
+  "architectural_notes": [
+    "Support an 'unlisted' deployment mode: app is reachable via direct URL but not indexed/listed publicly.",
+    "Provide a Chrome extension build artifact (ZIP) that points to the deployed app URL."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-implement-an-unlisted-link-only-access-gate-so-the-web-app-ui-is-not-visible-usable-unless-the-user-opens-the-app-with-a-valid-secret-in-the-url-hash-e-g-accesskey-if-the-secret-is-missing-or-invalid-show-a-locked-screen-instead-of-the-watermark-removal-workflow",
+      "title": "Implement an \"unlisted / link-only\" access gate so the web app UI is not visible/usable unless the user opens the app with a valid secret in the URL hash (e.g. #accessKey=...). If the secret is missing or invalid, show a locked screen instead of the watermark-removal workflow.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-small-frontend-share-access-link-ui-that-shows-a-copyable-unlisted-url-containing-the-required-hash-secret-so-the-owner-can-distribute-the-link-to-others",
+      "title": "Add a small frontend \"Share access link\" UI that shows a copyable unlisted URL containing the required hash secret so the owner can distribute the link to others.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-minimal-chrome-extension-manifest-v3-package-in-the-repo-that-opens-the-deployed-unlisted-web-app-url-so-the-extension-can-be-zipped-and-published-later-to-the-chrome-web-store",
+      "title": "Create a minimal Chrome Extension (Manifest V3) package in the repo that opens the deployed unlisted web app URL, so the extension can be zipped and published later to the Chrome Web Store.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Make the web app accessible only via an unlisted/shareable link (not publicly discoverable) while still usable by anyone who has the link.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Create a Chrome extension package (manifest + files) that wraps/opens the deployed web app, so it can be published to the Chrome Web Store in the future.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Enforce the same unlisted access gate on backend APIs so that canister methods used by the app cannot be successfully called unless the request includes the valid access secret (do not rely on frontend-only hiding).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Add unlisted (link-only) access mode and Chrome extension wrapper package",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

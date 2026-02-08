@@ -1,0 +1,73 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-implement-an-unlisted-link-only-access-gate-so-the-web-app-ui-is-not-visible-usable-unless-the-user-opens-the-app-with-a-valid-secret-in-the-url-hash-e-g-accesskey-if-the-secret-is-missing-or-invalid-show-a-locked-screen-instead-of-the-watermark-removal-workflow",
+      "featureTitle": "Implement an \"unlisted / link-only\" access gate so the web app UI is not visible/usable unless the user opens the app with a valid secret in the URL hash (e.g. #accessKey=...). If the secret is missing or invalid, show a locked screen instead of the watermark-removal workflow.",
+      "files": [
+        "frontend/.env.example",
+        "frontend/src/App.tsx",
+        "frontend/src/components/LockedScreen.tsx",
+        "frontend/src/hooks/useChunkedVideoUpload.ts",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useUnlistedAccess.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-small-frontend-share-access-link-ui-that-shows-a-copyable-unlisted-url-containing-the-required-hash-secret-so-the-owner-can-distribute-the-link-to-others",
+      "featureTitle": "Add a small frontend \"Share access link\" UI that shows a copyable unlisted URL containing the required hash secret so the owner can distribute the link to others.",
+      "files": [
+        "frontend/src/components/ShareAccessLink.tsx",
+        "frontend/src/components/WorkflowHeader.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-minimal-chrome-extension-manifest-v3-package-in-the-repo-that-opens-the-deployed-unlisted-web-app-url-so-the-extension-can-be-zipped-and-published-later-to-the-chrome-web-store",
+      "featureTitle": "Create a minimal Chrome Extension (Manifest V3) package in the repo that opens the deployed unlisted web app URL, so the extension can be zipped and published later to the Chrome Web Store.",
+      "files": [
+        "frontend/extension/README.md",
+        "frontend/extension/background.js",
+        "frontend/extension/manifest.json"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

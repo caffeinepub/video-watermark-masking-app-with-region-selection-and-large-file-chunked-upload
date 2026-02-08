@@ -1,0 +1,78 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-08T16:10:15.395Z",
+  "summary": "REQ-1/3/4 are mostly addressed on the frontend (locked screen, share link UI) and an extension folder is added. Backend methods shown are updated to require a secret parameter. However, the URL-hash format/handling differs from the spec (no #accessKey=...), backend gating for blob-storage methods is not evidenced, required use of existing urlParams utilities is not evidenced, and an unnecessary migration file appears to have been added. Extension icon files are referenced but not shown as added.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Secret is read from the URL hash as a named parameter (e.g. #accessKey=...), persisted to sessionStorage, and cleared from the visible URL after extraction using the existing urlParams utilities.",
+      "reason": "The implementation appears to treat the entire hash value as the secret (e.g. #watermark-access-2026) rather than parsing a key/value like #accessKey=...; and it clears the hash via history.replaceState directly, with no evidence of using the existing urlParams utilities.",
+      "evidence": [
+        "frontend/src/hooks/useUnlistedAccess.ts (compares hashValue === EXPECTED_SECRET; clears via window.history.replaceState(...))",
+        "frontend/src/components/ShareAccessLink.tsx (builds URL as ...#${secret}, not #accessKey=...)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Enforce the unlisted access gate on backend blob upload/download methods exposed by the storage mixin that are reachable from the frontend.",
+      "reason": "The actor includes `MixinStorage()` and adds `checkAccessSecret` plus secret parameters to some app methods, but there is no evidence in the diff summary that the blob-storage methods (from the mixin) are wrapped/overridden to require the access secret.",
+      "evidence": [
+        "backend/main.mo (includes MixinStorage(); defines checkAccessSecret; shows secret added to some methods, but mixin methods gating not shown)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Backend methods used by the UI for upload/metadata/status (uploadVideo, markWatermark, updateVideoStatus, deleteVideo, getVideo, getAllVideosByOwner, etc.) reject requests when secret is missing/invalid.",
+      "reason": "Only a portion of backend/main.mo is shown; while uploadVideo and markWatermark (partially) are updated, the diff summary does not provide evidence that all listed methods (e.g., updateVideoStatus, deleteVideo, getVideo, getAllVideosByOwner) were updated to accept and validate the secret.",
+      "evidence": [
+        "backend/main.mo (truncated after markWatermark; other methods not evidenced)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Extension folder contains at minimum: manifest.json, icons, and a simple action that opens the web app URL.",
+      "reason": "manifest.json references icon files, but the diff summary does not show any icon files being added under frontend/extension/icons/.",
+      "evidence": [
+        "frontend/extension/manifest.json (references icons/icon-16.png, icon-48.png, icon-128.png)",
+        "ADDED FILES list (no icon PNGs shown)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added backend/migration.mo and wired migration into the actor despite no evidenced stable-state schema change.",
+      "reason": "BuildRequest explicitly says to add backend/migration.mo only if a stable-state schema change is required; the added migration is an identity transform and the diff summary does not evidence a schema change that requires it.",
+      "evidence": [
+        "backend/migration.mo (run(old) returns old; defines OldActor/NewActor identical)",
+        "backend/main.mo ((with migration = Migration.run) and import Migration \"migration\")"
+      ]
+    },
+    {
+      "description": "Frontend hardcodes an EXPECTED_SECRET value and documents that it is hardcoded rather than configurable.",
+      "reason": "The BuildRequest requires an access secret in URL hash and sessionStorage behavior, but does not request hardcoding a specific secret value or adding documentation emphasizing hardcoding it in the hook.",
+      "evidence": [
+        "frontend/src/hooks/useUnlistedAccess.ts (const EXPECTED_SECRET = 'watermark-access-2026')",
+        "frontend/.env.example (states: 'The actual secret is hardcoded in useUnlistedAccess.ts')"
+      ]
+    }
+  ],
+  "confidence": 0.74,
+  "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/.env.example",
+    "frontend/extension/README.md",
+    "frontend/extension/background.js",
+    "frontend/extension/manifest.json",
+    "frontend/src/App.tsx",
+    "frontend/src/components/LockedScreen.tsx",
+    "frontend/src/components/ShareAccessLink.tsx",
+    "frontend/src/components/WorkflowHeader.tsx",
+    "frontend/src/hooks/useChunkedVideoUpload.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useUnlistedAccess.ts",
+    "project_state.json"
+  ]
+}
